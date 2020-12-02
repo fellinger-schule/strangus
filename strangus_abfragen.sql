@@ -22,3 +22,9 @@ INNER JOIN EZV
 ON c.ezv_id=ezv.id
 INNER JOIN Produkt p
 ON ezv.produkt_id=p.id;
+
+SELECT * 
+FROM Charge c
+INNER JOIN CHARGE_ANLAGENTEIL_MAPPING cam
+on cam.charge_id=c.id
+WHERE c.id = 0;
