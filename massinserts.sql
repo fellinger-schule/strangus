@@ -57,14 +57,17 @@ BEGIN
     mass_insert(40);
 END;
 /
-
-SELECT cam.charge_id,
+SELECT cam.charge_id,c.name,
     CASE
         WHEN (MAX(cam.outgoing) < SYSDATE) THEN 'Fertig'
-        WHEN (MIN(cam.outgoing) > SYSDATE) THEN 'In Planung'
-        WHEN (EXTRACT(hour from (MAX(ingoing)-MIN(ingoing))) = 0) THEN 'In Pfanne'
-        WHEN (EXTRACT(hour from (MAX(ingoing)-MIN(ingoing))) = 1) THEN 'In Verteiler'
-        WHEN (EXTRACT(hour from (MAX(ingoing)-MIN(ingoing))) = 2) THEN 'In Kokille'
+        WHEN (MIN(cam.ingoing) > SYSDATE) THEN 'in Planung'
+        WHEN (CAST(MAX(cam.outgoing) as DATE)-SYSDATE)*24 < 1 THEN 'Kokille'
+        WHEN (CAST(MAX(cam.outgoing) as DATE)-SYSDATE)*24 < 2 THEN 'Verteiler'
+        WHEN (CAST(MAX(cam.outgoing) as DATE)-SYSDATE)*24 < 3 THEN 'Pfanne'
+        ELSE 'invalid'
     END status
 FROM charge_anlagenteil_mapping cam
-GROUP BY charge_id;
+INNER JOIN charge c
+ON cam.charge_id=c.id
+GROUP BY cam.charge_id, c.name
+ORDER BY cam.charge_id DESC;
