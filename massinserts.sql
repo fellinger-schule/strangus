@@ -3,9 +3,6 @@ BEGIN
     DELETE FROM produkt;
     DELETE FROM charge;
     DELETE FROM charge_anlagenteil_mapping;
-    DELETE FROM verteiler;
-    DELETE FROM pfanne;
-    DELETE FROM kokille;
 END clear_tables;
 /
 CREATE OR REPLACE PROCEDURE mass_insert(p_charge_count number) AS
@@ -28,16 +25,19 @@ BEGIN
         VALUES(v_charge_id, v_time+numtodsinterval(0,'HOUR'), null, 0, null, null);
         INSERT INTO CHARGE_ANLAGENTEIL_MAPPING(CHARGE_ID, INGOING, OUTGOING, PFANNE_ID, VERTEILER_ID, KOKILLE_ID)
         VALUES(v_charge_id, null, v_time+numtodsinterval(1,'HOUR'), 0, null, null);
+        UPDATE PFANNE SET age=age+1 WHERE id=0;
         --VERTEILER
         INSERT INTO CHARGE_ANLAGENTEIL_MAPPING(CHARGE_ID, INGOING, OUTGOING, PFANNE_ID, VERTEILER_ID, KOKILLE_ID)
         VALUES(v_charge_id, v_time+numtodsinterval(1,'HOUR'), null, null, 0, null);
         INSERT INTO CHARGE_ANLAGENTEIL_MAPPING(CHARGE_ID, INGOING, OUTGOING, PFANNE_ID, VERTEILER_ID, KOKILLE_ID)
         VALUES(v_charge_id, null, v_time+numtodsinterval(2,'HOUR'), null, 0, null);
+        UPDATE VERTEILER SET age=age+1 WHERE id=0;
         --KOKILLE
         INSERT INTO CHARGE_ANLAGENTEIL_MAPPING(CHARGE_ID, INGOING, OUTGOING, PFANNE_ID, VERTEILER_ID, KOKILLE_ID)
         VALUES(v_charge_id, v_time+numtodsinterval(2,'HOUR'), null, null, null, 0);
         INSERT INTO CHARGE_ANLAGENTEIL_MAPPING(CHARGE_ID, INGOING, OUTGOING, PFANNE_ID, VERTEILER_ID, KOKILLE_ID)
         VALUES(v_charge_id, null, v_time+numtodsinterval(3,'HOUR'), null, null, 0);
+        UPDATE KOKILLE SET age=age+1 WHERE id=0;
 
         FOR i_productnum IN 1..9 LOOP
             SELECT produkt_seq.nextval INTO v_product_id FROM dual;
